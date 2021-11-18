@@ -10,7 +10,6 @@ class Statuses extends Model
     use HasFactory;
 
     protected $hidden = ['created_at', 'updated_at'];
-    // protected $fillable = ['name'];
 
     public function patients() {
         return $this->hasOne(Patients::class);

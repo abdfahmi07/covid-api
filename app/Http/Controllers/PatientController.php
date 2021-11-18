@@ -7,10 +7,11 @@ use App\Models\Patients;
 use Illuminate\Http\Request;
 
 class PatientController extends Controller
-{
+{   
     public function index() {
         $patients = PatientResource::collection(Patients::all());
-   
+        
+        // Check if variable patients is empty
         if($patients->isEmpty()) {
             return $this->errorMessage('Data is empty', 200);
         } 
@@ -25,6 +26,8 @@ class PatientController extends Controller
     }
 
     public function store(Request $request) {
+
+        // Validate each field with method validate
         $fields = $request->validate([
             'name' => 'required|string',
             'phone' => 'required|digits_between:10,12',
@@ -33,6 +36,7 @@ class PatientController extends Controller
             'date_in' => 'date',
             'date_out' => 'date',
         ]);
+        // Create automatically date 
         $date_in = date('Y-m-d');
         $date_out = date('Y-m-d', strtotime('+14 days'));
 
@@ -55,12 +59,15 @@ class PatientController extends Controller
     } 
 
     public function show($id) {
+        // Find patient by id
         $get_patient_by_id = Patients::find($id);
 
+        // Check if patient not found
         if(!$get_patient_by_id) {
            return $this->errorMessage();
         }
         
+        // Create collection using format in PatientResource 
         $patient = PatientResource::make($get_patient_by_id);
         
         $payloads = [
@@ -73,12 +80,15 @@ class PatientController extends Controller
     }
 
     public function update(Request $request, $id) {
+        // Find patient by id
         $patient = Patients::find($id);
 
+        // Check if patient not found
         if(!$patient) {
             return $this->errorMessage();
         }
         
+        // Validate each field on request body
         $fields = $request->validate([
             'name' => 'string',
             'phone' => 'digits_between:10,12',
@@ -88,7 +98,8 @@ class PatientController extends Controller
             'date_out' => 'date',
         ]);
 
-        
+        // Update patient if patient is available
+        // Update partial data, if not declare on body request, using old data
         $patient->update([
             'name' => ($request->name ? $fields['name'] : $patient->name),
             'phone' => ($request->phone ? $fields['phone'] : $patient->phone),
@@ -108,18 +119,15 @@ class PatientController extends Controller
     }
 
     public function destroy($id) {
+        // Find patient by id
         $patient = Patients::find($id);
 
+        // Check if patient not found
         if(!$patient) {
-            // $errorMessage = [
-            //     "message" => "Resource not found",
-            //     "success" => false
-            // ];
-
-            // return response()->json($errorMessage, 404);
             return $this->errorMessage();
         }
 
+        // If patient is available so delete a data by id
         $patient->delete();
 
         $payloads = [
@@ -131,8 +139,10 @@ class PatientController extends Controller
     }
 
     public function search($name) {
+        // Get data using 'where' and 'like'
         $patient = Patients::where('name', 'like', "%$name%")->get();
 
+        // Check if variable patient is empty
         if($patient->isEmpty()) {
             return $this->errorMessage();
         }
@@ -147,8 +157,10 @@ class PatientController extends Controller
     }
 
     public function positive() {
+        // Get data using 'where' which is status_id is '1' (positive)
         $positive_patients = Patients::where('status_id', '=', 1)->get();
         
+        // Check if variable positive_patients is empty
         if($positive_patients->isEmpty()) {
             return $this->errorMessage('Data positive patient is empty', 200);
         }
@@ -164,8 +176,10 @@ class PatientController extends Controller
     }
 
     public function recovered() {
+         // Get data using 'where' which is status_id is '2' (recovery)
         $recovered_patients = Patients::where('status_id', '=', 2)->get();
         
+        // Check if variable recovered_patients is empty
         if($recovered_patients->isEmpty()) {
             return $this->errorMessage('Data recovered patient is empty', 200);
         }
@@ -181,8 +195,10 @@ class PatientController extends Controller
     }
 
     public function dead() {
+        // Get data using 'where' which is status_id is '3' (dead)
         $dead_patients = Patients::where('status_id', '=', 3)->get();
         
+        // Check if variable dead_patients is empty
         if($dead_patients->isEmpty()) {
             return $this->errorMessage('Data dead patient is empty', 200);
         }
@@ -197,6 +213,7 @@ class PatientController extends Controller
         return response()->json($payloads);
     }
 
+    // Method for calling errorMessage if there is no data or data not found
     public function errorMessage($message = 'Resource not found', $statusCode = 404) {
         return response()->json([
             "message" => $message,
