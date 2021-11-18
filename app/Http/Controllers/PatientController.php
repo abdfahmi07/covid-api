@@ -149,6 +149,10 @@ class PatientController extends Controller
     public function positive() {
         $positive_patients = Patients::where('status_id', '=', 1)->get();
         
+        if($positive_patients->isEmpty()) {
+            return $this->errorMessage('Data positive patient is empty', 200);
+        }
+
         $payloads = [
             'message' => 'Get Positive Resource',
             'success' => true,
@@ -162,6 +166,10 @@ class PatientController extends Controller
     public function recovered() {
         $recovered_patients = Patients::where('status_id', '=', 2)->get();
         
+        if($recovered_patients->isEmpty()) {
+            return $this->errorMessage('Data recovered patient is empty', 200);
+        }
+
         $payloads = [
             'message' => 'Get Recovered Resource',
             'success' => true,
@@ -175,6 +183,10 @@ class PatientController extends Controller
     public function dead() {
         $dead_patients = Patients::where('status_id', '=', 3)->get();
         
+        if($dead_patients->isEmpty()) {
+            return $this->errorMessage('Data dead patient is empty', 200);
+        }
+
         $payloads = [
             'message' => 'Get Dead Resource',
             'success' => true,
@@ -191,5 +203,4 @@ class PatientController extends Controller
             "success" => false
         ], $statusCode);
     }
-    
 }
