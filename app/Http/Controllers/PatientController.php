@@ -12,12 +12,7 @@ class PatientController extends Controller
         $patients = PatientResource::collection(Patients::all());
    
         if($patients->isEmpty()) {
-            $errorMessage = [
-                "message" => "Data is empty",
-                "success" => false
-            ];
-            
-            return response()->json($errorMessage);
+            return $this->errorMessage('Data is empty', 200);
         } 
             $payloads = [
                 "message" => "Get All Resource",
@@ -61,14 +56,9 @@ class PatientController extends Controller
 
     public function show($id) {
         $get_patient_by_id = Patients::find($id);
-        
+
         if(!$get_patient_by_id) {
-            $errorMessage = [
-                "message" => "Resource not found",
-                "success" => false
-            ];
-            
-            return response()->json($errorMessage, 404);
+           return $this->errorMessage();
         }
         
         $patient = PatientResource::make($get_patient_by_id);
@@ -86,12 +76,7 @@ class PatientController extends Controller
         $patient = Patients::find($id);
 
         if(!$patient) {
-            $errorMessage = [
-                "message" => "Resource not found",
-                "success" => false
-            ];
-            
-            return response()->json($errorMessage, 404);
+            return $this->errorMessage();
         }
         
         $fields = $request->validate([
@@ -126,12 +111,13 @@ class PatientController extends Controller
         $patient = Patients::find($id);
 
         if(!$patient) {
-            $errorMessage = [
-                "message" => "Resource not found",
-                "success" => false
-            ];
+            // $errorMessage = [
+            //     "message" => "Resource not found",
+            //     "success" => false
+            // ];
 
-            return response()->json($errorMessage, 404);
+            // return response()->json($errorMessage, 404);
+            return $this->errorMessage();
         }
 
         $patient->delete();
@@ -148,12 +134,7 @@ class PatientController extends Controller
         $patient = Patients::where('name', 'like', "%$name%")->get();
 
         if($patient->isEmpty()) {
-            $errorMessage = [
-                "message" => "Resource not found",
-                "success" => false
-            ];
-
-            return response()->json($errorMessage, 404);
+            return $this->errorMessage();
         }
         
         $payloads = [
@@ -202,6 +183,13 @@ class PatientController extends Controller
         ];
 
         return response()->json($payloads);
+    }
+
+    public function errorMessage($message = 'Resource not found', $statusCode = 404) {
+        return response()->json([
+            "message" => $message,
+            "success" => false
+        ], $statusCode);
     }
     
 }

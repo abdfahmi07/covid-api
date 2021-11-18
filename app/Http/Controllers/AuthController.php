@@ -23,14 +23,11 @@ class AuthController extends Controller
              'email' => $fields['email'],
              'password' => Hash::make($fields['password'])
          ]);
-
-         $token = $user->createToken('user_token')->plainTextToken;
          
          $payloads = [
              "message" => 'User has been successfully registered',
              "success" => true,
-             'user' => $user,
-             'token' => $token
+             'user' => $user
          ];
 
          return response()->json($payloads, 201);
